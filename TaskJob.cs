@@ -31,22 +31,24 @@ public sealed class ConvertToTaskJobCommand : PSCmdlet
 /// </summary>
 public sealed class TaskJob : Job2
 {
-    readonly Task task;
-    readonly Job2 managedJob;
+    readonly Task _task;
+    readonly Job2 _managedJob;
     public TaskJob(Task Task, PSCmdlet Cmdlet, string? Name, string? Command, string? Location) : base(Command, Name)
     {
         PSJobTypeName = "TaskJob";
         this.Name = Name ?? "Task" + Task.Id;
         Output.EnumeratorNeverBlocks = true;
-        task = Task;
+        _task = Task;
         // Create a job definition and register it with the Powershell job manager so it can be seen via Get-Job.
         // The labels here don't seem to matter or show up anywhere
         JobDefinition jobDefinition = new(typeof(TaskJobSourceAdapter), "", "TaskJob");
-        Dictionary<string, object> parameterCollection = new();
-        parameterCollection.Add("NewJob", this);
+        Dictionary<string, object> parameterCollection = new()
+        {
+            { "NewJob", this }
+        };
         JobInvocationInfo jobSpecification = new(jobDefinition, parameterCollection);
-        managedJob = Cmdlet.JobManager.NewJob(jobSpecification);
-        task.Wait();
+        _managedJob = Cmdlet.JobManager.NewJob(jobSpecification);
+        _task.Wait();
         dynamic result = ((dynamic)Task).Result;
         Output.Add(result);
 
@@ -57,7 +59,7 @@ public sealed class TaskJob : Job2
 
     public override string Location => "task";
 
-    public override string StatusMessage => task.Status.ToString();
+    public override string StatusMessage => _task.Status.ToString();
 
     public override void ResumeJob()
     {
