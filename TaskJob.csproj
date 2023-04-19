@@ -1,13 +1,30 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk"  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="Default" />
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PublishDir>$(MSBuildProjectDirectory)/out</PublishDir>
     <Nullable>enable</Nullable>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <LangVersion>latest</LangVersion>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <!-- Disable PDB generation for the Release build -->
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
   </PropertyGroup>
 
+  <ItemGroup Label="Build">
+    <Content Include="TaskJob.psd1">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <!-- <Content Include="Module.psm1">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content> -->
+  </ItemGroup>
+
   <ItemGroup>
+    <PackageReference Include="Microsoft.Csharp" Version="4.7.0" PrivateAssets="All" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="All" />
   </ItemGroup>
 </Project>
